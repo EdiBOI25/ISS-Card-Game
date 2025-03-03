@@ -1,0 +1,24 @@
+﻿<Window x:Class="WpfCardGame.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:WpfCardGame"
+        mc:Ignorable="d"
+        Title="MainWindow" Height="720" Width="1280">
+    <Grid>
+        <!-- Add a TextBlock control to display the player's name -->
+        <TextBlock x:Name="Player1Name" Text="Player1Name" FontSize="20" VerticalAlignment="Top" HorizontalAlignment="Left" Margin="20,0,0,0"/>
+        <!-- Add an Image control to display the avatar -->
+        <Image x:Name="Player1Avatar" Stretch="Uniform" Width="184" VerticalAlignment="Top" HorizontalAlignment="Left" Margin="120"/>
+        
+        <!-- Add a TextBlock control to display the player's name -->
+        <TextBlock x:Name="Player2Name" Text="Player2Name" FontSize="20" VerticalAlignment="Top" HorizontalAlignment="Right" Margin="0,0,20,0"/>
+        <!-- Add an Image control to display the avatar -->
+        <Image x:Name="Player2Avatar" Stretch="Uniform" Width="184" VerticalAlignment="Top" HorizontalAlignment="Right" Margin="120"/>
+
+        <TextBlock x:Name="CompatibilityRating" Text="Compatibility: 0%" FontSize="40" VerticalAlignment="Top" HorizontalAlignment="Center" Margin="0,180,0,0"></TextBlock>
+        <!--<Button Content="Create Lobby" Click="CreateLobby_Click" Margin="681,13,162,392"/>-->
+        <!--<Button Content="Find Lobby" Click="FindLobby_Click" Margin="696,352,162,206"/>-->
+    </Grid>
+</Window>
