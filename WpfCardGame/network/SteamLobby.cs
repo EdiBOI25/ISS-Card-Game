@@ -1,25 +1,29 @@
 ﻿using System.Diagnostics;
 using Steamworks;
+using WpfCardGame.controller;
+using WpfCardGame.domain;
 
 namespace WpfCardGame.network;
 
 public class SteamLobby
 {
-    protected Callback<LobbyCreated_t> lobbyCreatedCallback;
-    protected Callback<GameLobbyJoinRequested_t> joinRequestCallback;
-    protected Callback<LobbyEnter_t> lobbyEnteredCallback;
-    protected Callback<LobbyMatchList_t> lobbyMatchListCallback;
+    protected Callback<LobbyCreated_t> LobbyCreatedCallback;
+    protected Callback<GameLobbyJoinRequested_t> JoinRequestCallback;
+    protected Callback<LobbyEnter_t> LobbyEnteredCallback;
+    protected Callback<LobbyMatchList_t> LobbyMatchListCallback;
 
-    public ulong CurrentLobbyID;
+    public ulong CurrentLobbyId;
     private const int MaxPlayers = 2;
     private const string HostAddressKey = "HostAddress";
     private NetworkManager manager;
 
+    public List<Lobby> Lobbies { get; } = [];
+
 
     public SteamLobby()
     {
-        lobbyCreatedCallback = Callback<LobbyCreated_t>.Create(OnLobbyCreated);
-        lobbyEnteredCallback = Callback<LobbyEnter_t>.Create(OnLobbyEntered);
+        LobbyCreatedCallback = Callback<LobbyCreated_t>.Create(OnLobbyCreated);
+        LobbyEnteredCallback = Callback<LobbyEnter_t>.Create(OnLobbyEntered);
     }
 
     public void CreateLobby()
@@ -58,7 +62,7 @@ public class SteamLobby
             return;
         }
 
-        lobbyMatchListCallback = Callback<LobbyMatchList_t>.Create(OnLobbyMatchList);
+        LobbyMatchListCallback = Callback<LobbyMatchList_t>.Create(OnLobbyMatchList);
         SteamMatchmaking.RequestLobbyList();
     }
 
@@ -66,10 +70,24 @@ public class SteamLobby
     {
         Trace.WriteLine($"[SteamLobby.cs]Found {callback.m_nLobbiesMatching} lobbies.");
 
-        if (callback.m_nLobbiesMatching > 0)
+        Lobbies.Clear();
+        for (int i = 0; i < callback.m_nLobbiesMatching; ++i)
         {
-            CSteamID lobbyId = SteamMatchmaking.GetLobbyByIndex(0);
-            SteamMatchmaking.JoinLobby(lobbyId);
+            CSteamID lobbyId = SteamMatchmaking.GetLobbyByIndex(i);
+            SteamMatchmaking.GetLobbyMemberLimit(lobbyId);
+
+            Lobby l = new Lobby("Some name" + i, 1, 
+                SteamMatchmaking.GetLobbyMemberLimit(lobbyId), lobbyId);
+
+            Lobbies.Add(l);
         }
+
+
+
+        //if (callback.m_nLobbiesMatching > 0)
+        //{
+        //    CSteamID lobbyId = SteamMatchmaking.GetLobbyByIndex(0);
+        //    SteamMatchmaking.JoinLobby(lobbyId);
+        //}
     }
 }

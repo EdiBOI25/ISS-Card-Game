@@ -26,6 +26,9 @@ public class Player
     public int Wins { get; set; } = 0;  // total wins yet
     public BitmapSource Avatar { get; set; }    // bitmap source => myImage.Source = player.Avatar
 
+    protected Callback<AvatarImageLoaded_t> AvatarImageLoadedCallback;
+    
+
     //// Navigation properties
     //public List<Match> Matches { get; set; }  // Matches played
     //public List<PlayerScore> Scores { get; set; }  // Head-to-head scores
@@ -42,6 +45,8 @@ public class Player
         {
             throw new Exception("Steam API not initialized");
         }
+
+        
 
         return new Player
         {

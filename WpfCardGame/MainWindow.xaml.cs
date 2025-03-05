@@ -9,7 +9,9 @@ using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
+using System.Windows.Threading;
 using Steamworks;
+using WpfCardGame.controller;
 using WpfCardGame.domain;
 using WpfCardGame.network;
 using static System.Net.Mime.MediaTypeNames;
@@ -22,60 +24,61 @@ namespace WpfCardGame
     /// </summary>
     public partial class MainWindow : Window
     {
-        private SteamLobby steamLobby;
+        private SteamLobby _steamLobby;
+        private DispatcherTimer _steamUpdateTimer = new DispatcherTimer();
+        private bool _toggleOpacity = false;
+
 
         public MainWindow()
         {
             InitializeComponent();
-            steamLobby = new SteamLobby();
+            KeepSteamRunning();
+            _steamLobby = new SteamLobby();
+
             Player ediboi = Player.CreateFromSteam();
-            Player player2 = Player.CreateFromSteamId(new CSteamID(76561198907576762));
-
-
-            //Image myImage = new Image { Width = 184 };
-
             BitmapSource imageSource = ediboi.Avatar;
             Player1Avatar.Source = imageSource;
             Player1Avatar.UpdateLayout();
             Player1Name.Text = "Player name from Steam: " + ediboi.Name + "\nID: " + ediboi.SteamId;
 
-            BitmapSource imageSource2 = player2.Avatar;
-            Player2Avatar.Source = imageSource2;
-            Player2Avatar.UpdateLayout();
-            Player2Name.Text = "Player name from Steam: " + player2.Name + "\nID: " + player2.SteamId;
-
-            SetCompatibilityRating();
+            _steamLobby.FindLobby();
         }
 
-        private async void SetCompatibilityRating()
+        private void KeepSteamRunning()
         {
-            try
-            {
-                Random random = new Random();
-                for (int i = 0; i < 30; ++i)
-                {
-                    int randomUshort = random.Next(0, 100);
-                    await CompatibilityRating.Dispatcher.InvokeAsync(() =>
-                    {
-                        CompatibilityRating.Text = "Compatibility: " + randomUshort + "%";
-                    });
-                    await Task.Delay(100);
-                }
-            }
-            catch (Exception e)
-            {
-                CompatibilityRating.Text = "Compatibility: " + 69 + "%";
-            }
+            _steamUpdateTimer.Interval = TimeSpan.FromMilliseconds(33);
+            _steamUpdateTimer.Tick += (sender, e) => SteamAPI.RunCallbacks();
+            _steamUpdateTimer.Tick += ForceRefresh;
+            _steamUpdateTimer.Start();
+        }
+
+        private void ForceRefresh(object? sender, EventArgs e)
+        {
+            _toggleOpacity = !_toggleOpacity;
+            RefreshOverlay.Opacity = _toggleOpacity ? 0.99 : 1.0; // Tiny change forces redraw
         }
 
         private void CreateLobby_Click(object sender, RoutedEventArgs e)
         {
-            steamLobby.CreateLobby();
+            _steamLobby.CreateLobby();
+        }
+
+        private void RefreshLobbies()
+        {
+            var viewModel = (LobbyViewModel)this.DataContext;
+            List<Lobby> lobbies = _steamLobby.Lobbies;
+            viewModel.UpdateLobbies(lobbies);
         }
 
         private void FindLobby_Click(object sender, RoutedEventArgs e)
         {
-            steamLobby.FindLobby();
+            _steamLobby.FindLobby();
+        }
+
+        protected override void OnClosed(EventArgs e)
+        {
+            _steamUpdateTimer.Stop();
+            base.OnClosed(e);
         }
     }
 }

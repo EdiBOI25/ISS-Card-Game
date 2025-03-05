@@ -9,7 +9,12 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <Compile Remove="MainWindow.xaml - Copy.cs" />
+  </ItemGroup>
+
+  <ItemGroup>
     <Folder Include="assets\images\cards\baby\" />
+    <Folder Include="bin\Debug\net8.0-windows\" />
     <Folder Include="business\" />
     <Folder Include="domain\" />
   </ItemGroup>
